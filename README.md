@@ -79,3 +79,11 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
     - Searchsploit
 - ExploitDB
 - Github, payloadAllTheThings
+
+## LINKS
+
+### Common Ports - [Wayback Machine](https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf)
+
+### VIM Cheat Sheet - [Watch Your Eyez](https://vimsheet.com/)
+
+### HTTP STATUS CODES - [WIKIPEDIA WOOO](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
