@@ -78,7 +78,7 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
         - > run | exploit
     - Searchsploit
 - ExploitDB
-- Github, [payloadAllTheThings] (https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/)
+- Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/)
 
 ## LINKS
 
