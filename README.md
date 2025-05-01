@@ -78,11 +78,11 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
         - > run | exploit
     - Searchsploit
 - ExploitDB
-- Github, payloadAllTheThings
+- Github, [payloadAllTheThings] (https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/)
 
 ## LINKS
 
-### Common Ports - [Wayback Machine](https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf)
+### Common Ports - [Wayback Machine]([https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf](https://swisskyrepo.github.io/InternalAllTheThings/))
 
 ### VIM Cheat Sheet - [Watch Your Eyez](https://vimsheet.com/)
 
