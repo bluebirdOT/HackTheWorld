@@ -1,4 +1,42 @@
 # HackTheWorld
+### **CHEAT SHEET- https://devhints.io/curl**
+
+## cURL is used for sending GET/POST requests to http/s
+
+Curl can be used to get files or send data to servers using just command line and doing it fast. 
+
+CURL 
+
+-s silent most noise and make it easier to read
+
+-v Verbose, easier to understand and shows almost everything included in request and connection
+
+-i used to see request head and body
+
+-I capitol i and used to see JUST header of request. 
+
+-X sending a specific request such as POST or PUT, 
+
+-d “DATA”; example with key for key.php ‘-d “key=UNENCRYPTED_KEY_HERE”
+
+-L follows redirects page may give after login
+
+-u username:pass used for logins with credentials if using login after url loads
+
+## Structure of cURL
+
+**basic connection**
+
+$ curl http://<SERVER_IP>:<PORT>/ 
+
+**if sending http authentication for logins with basic auth**
+
+$ curl http://username:password@<SERVER_IP>:<PORT>/
+
+**if sending with login using PHP logins after CONNECTION**
+
+$ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
+
 ## App/software/programs
 
 - **SSH**
