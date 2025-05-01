@@ -1,1 +1,43 @@
 # HackTheWorld
+## App/software/programs
+
+- **SSH**
+- **Netcat/ncat/nc**
+    - Socat
+    - Reverse shell capability using:
+    - $ nc -lvnp 1234: listen for connection via only IP on port 1234
+- **TMUX**
+    - CTRL-B for prefix
+        - SHIFT+”: splits up and down
+        - SHIFT+%: splits to left or right
+        - SHIFT+$: rename
+        - Z: pause and unpause tmux
+- **FTP**
+- **SMB**(server message block)
+    - SMB Client
+        - necessary for attacks to open smb.
+        - -N silences authentication if not needed and used to list shares
+        - -L lists smb shares of available
+        - $ smbclient -N -L \\\\<IP_ADDRESS>: used to list shares on smb port for a machine
+- **NMAP**
+    - -sC: makes nmap use scripts to obtain more information
+    - -sV: makes nmap run a version scan.
+    - -p-: makes nmap run all TCP ports
+    - nmap --script <script name> -p<port> <host>: runs script in nmap
+    - nmap -sV --script=banner <target>: grabs banner during scan of serviceversions.
+    - SMD ENUMERATION: [SMD SCRIPT](https://nmap.org/nsedoc/scripts/smb-os-discovery.html)
+- **GoBuster**
+    - tool that allows for performing DNS, vhost, and directory brute-forcing
+    - $ gobuster dir -u http://<IP_ADDRESS>/ -w /path/to/common/wordlist.txt
+- **Metasploit**
+    - $ msfconsole: starts metasploit
+        - > search exploit <NAME>
+        - > USE *copy path to exploit”
+        - > show options: configures current exploit before deploy
+        - > set <option> <value>: example for setting RHOSTS, the “victim” to ip 10.10.10.40
+            - > set RHOSTS 10.10.10.40
+        - > check: verifies if RHOST is actually vunerable to this attack.
+        - > run | exploit
+    - Searchsploit
+- ExploitDB
+- Github, payloadAllTheThings
