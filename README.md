@@ -118,4 +118,4 @@ same is JSP
 
 ### HTTP STATUS CODES - [WIKIPEDIA WOOO](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
-### HackTricks - [PrettyCool Site](https://book.hacktricks.wiki/en/index.html)
+### HackTricks - [Pretty Cool Site](https://book.hacktricks.wiki/en/index.html)
