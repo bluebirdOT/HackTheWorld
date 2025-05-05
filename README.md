@@ -78,8 +78,8 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
         - > run | exploit
     - Searchsploit
 - ExploitDB
-- Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/)
-
+- Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/)\
+  
 ## Shell commands
 
 $ python -c ‘import pty; pty.spawn(“/bin/bash”)’
@@ -117,3 +117,5 @@ same is JSP
 ### VIM Cheat Sheet - [Watch Your Eyez](https://vimsheet.com/)
 
 ### HTTP STATUS CODES - [WIKIPEDIA WOOO](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
+
+### HackTricks - [PrettyCool Site](https://book.hacktricks.wiki/en/index.html)
