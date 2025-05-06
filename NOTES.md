@@ -1,6 +1,8 @@
 # HackTheWorld
 This is a Repository made by William Torres for the purpose of housing knowledge and notes that may come in handy when pentesting.
-Housing information that I am learning throughout my journey in Hack-The-Box. I may HACKTHEWORLD.
+Housing information that I am learning throughout my journey in Hack-The-Box. 
+
+## I may **HACKTHEWORLD.**
 
 ### **CHEAT SHEET- https://devhints.io/curl**
 
