@@ -78,7 +78,8 @@ $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
         - > run | exploit
     - Searchsploit
 - ExploitDB
-- Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/)\
+- Github, [payloadAllTheThings](https://swisskyrepo.github.io/InternalAllTheThings/)
+- Github, [Privilege Escalation Awesome Scripts SUITE (PEASS)](https://github.com/peass-ng/PEASS-ng)
   
 ## Shell commands
 
