@@ -21,19 +21,19 @@
 
 **1\. Introduction**
 
-This project aims to establish a secure, isolated virtualized sandbox environment using Proxmox VE. The environment will host both Linux and Windows virtual machines (VMs) capable of inter-VM communication. A key objective is to implement a robust network architecture ("Network Option B") that segregates the sandbox from the main network and the hypervisor management interface. This setup will allow students to access and utilize the VMs for educational or testing purposes without compromising the hypervisor's security or the broader network infrastructure. The project duration is three weeks.
+This project aims to establish a secure, isolated virtualized sandbox environment using Proxmox VE. The environment will host both Linux and Windows virtual machines (VMs) capable of inter-VM communication. A key objective is to implement a robust network architecture ("Isolated Virtual Environment") that segregates the sandbox from the main network and the hypervisor management interface. This setup will allow students to access and utilize the VMs for educational or testing purposes without compromising the hypervisor's security or the broader network infrastructure. The project duration is three weeks.
 
 **2\. Project Goals & Objectives**
 
 * **Goal:** To deploy a secure, isolated, and functional multi-OS sandbox environment.  
 * **Objectives:**  
   1. Install and configure Proxmox VE on dedicated hardware.  
-  2. Implement "Network Option B":  
+  2. Implement "Isolated Virtual Environment":  
      * Dedicated management network for Proxmox host access.  
      * Isolated internal virtual network for sandbox VMs.  
      * Deploy a virtual router/firewall (e.g., pfSense/OPNsense) to manage traffic to/from the isolated VM network.  
   3. Install and configure at least one Linux VM (e.g., Ubuntu Desktop/Server).  
-  4. Install and configure at least one Windows VM (e.g., Windows 10/Server Evaluation).  
+  4. Install and configure at least one Windows VM (e.g., Windows 11/Server Evaluation).  
   5. Ensure secure inter-VM communication within the isolated sandbox network.  
   6. Establish a secure and restricted access method for students to use the VMs (e.g., via RDP/SSH through the virtual router, or a VPN).  
   7. Document the setup process, network architecture, and student access procedures.
@@ -57,9 +57,9 @@ This project aims to establish a secure, isolated virtualized sandbox environmen
   * Physical security of the server hardware.  
   * Extensive ongoing monitoring or intrusion detection systems.
 
-**4\. Methodology & Technical Approach ("Network Option B")**
+**4\. Methodology & Technical Approach ("Isolated Virtual Environment")**
 
-The core of this project lies in the "Network Option B" architecture:
+The core of this project lies in the "Isolated Virtual Environment" architecture:
 
 1. **Proxmox VE Host Setup:**  
    * Install Proxmox VE on a dedicated physical server.  
@@ -123,7 +123,7 @@ The core of this project lies in the "Network Option B" architecture:
 
 **8\. Success Criteria**
 
-* Proxmox VE is successfully installed and configured with the "Network Option B" architecture.  
+* Proxmox VE is successfully installed and configured with the "Isolated Virtual Environment" architecture.  
 * Both Linux and Windows VMs are operational within the isolated vmbr1 network and can communicate with each other.  
 * The virtual router/firewall correctly manages traffic and enforces defined access rules.  
 * Students can securely access their assigned VMs using the designated method (port forwarding or VPN) without direct access to the hypervisor.  
