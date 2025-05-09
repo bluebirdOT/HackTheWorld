@@ -15,4 +15,4 @@ iface vmbr0 inet static \
       gateway 10.109.0.1 \
       bridge-ports eno1 \
       bridge-stp off \
-      bridge-fd 0 \
+      bridge-fd 0 
