@@ -8,11 +8,11 @@
 ## Network Documentation
   - $nano /etc/network/interfaces
 
-iface eno1 inet manual
-auto vmbr0
-iface vmbr0 inet static
-      address 10.109.0.10/24
-      gateway 10.109.0.1
-      bridge-ports eno1
-      bridge-stp off
-      bridge-fd 0
+iface eno1 inet manual \
+auto vmbr0 \
+iface vmbr0 inet static \
+      address 10.109.0.10/24 \
+      gateway 10.109.0.1 \
+      bridge-ports eno1 \
+      bridge-stp off \
+      bridge-fd 0 \
