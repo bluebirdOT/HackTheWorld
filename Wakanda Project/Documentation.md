@@ -21,14 +21,25 @@
 - Turned off both enterprise repos
 - Added no-subscription repo
 - Ran updates/upgrades
+- made teacher accounts, disabled root
 
 
 
 ## User Documentation-Teacher
-
 ### Group: Teachers
 Permissions: Node/Wakanda
-
+### User: Shxdow
+Permissions: /
 ### User: GrimReaper
-Permissions: Teachers Users
-Password: *****
+Permissions: (Group) Teachers
+### User: Lockwood
+Permissions: (Group) Teachers
+### User: Webman
+Permissions: (Group) Teachers
+
+## pfSense (The-Mighty-Wall) setup
+### http setup
+- running on 10.109.0.11
+- User: admin
+- Pass: *ask me*
+  
