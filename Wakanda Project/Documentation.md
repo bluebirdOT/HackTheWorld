@@ -21,3 +21,14 @@
 - Turned off both enterprise repos
 - Added no-subscription repo
 - Ran updates/upgrades
+
+
+
+## User Documentation-Teacher
+
+### Group: Teachers
+Permissions: Node/Wakanda
+
+### User: GrimReaper
+Permissions: Teachers Users
+Password: *****
