@@ -2,7 +2,7 @@
 
 ## Wakanda Specifications
 128 gbs of ram \
-2 CPUs 20 Cores in total \
+2 CPUs 40 Cores in total \
 2.4 Tb of space with Raid 5 coming out to 1.6 Tbs of storage
 
 ## Network Documentation
