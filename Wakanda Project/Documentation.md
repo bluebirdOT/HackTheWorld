@@ -16,3 +16,8 @@
    > bridge-ports eno1 \
    > bridge-stp off \
    > bridge-fd 0 
+
+## GUI steps on day one
+- Turned off both enterprise repos
+- Added no-subscription repo
+- Ran updates/upgrades
