@@ -19,7 +19,7 @@
 
 ## IPSET rules
   - $ sudo nano /etc/pve/firewall/cluster.fw
-
+''''
 [OPTIONS]
 
 enable: 1
@@ -29,7 +29,7 @@ enable: 1
 10.109.0.86 \
 10.109.0.89 \
 10.118.0.115 \
-10.118.0.119 \
+10.118.0.119 
 
 [RULES]
 
@@ -37,7 +37,7 @@ IN ACCEPT -source +barn_door_protocol -p tcp -dport 22 \
 IN ACCEPT -source +barn_door_protocol -p tcp -dport 8006 \
 IN DROP -p tcp -dport 22 \
 IN DROP -p tcp -dport 8006
-
+''''
 ## GUI steps on day one
 - Turned off both enterprise repos
 - Added no-subscription repo
