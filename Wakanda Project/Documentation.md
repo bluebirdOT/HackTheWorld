@@ -23,12 +23,12 @@
 > [IPSET trusted_ips]
 
 > [RULES]
-> IN ACCEPT -p tcp -s +trusted_ips --dport 22
-> IN ACCEPT -p tcp -s +trusted_ips --dport 8006
+> IN ACCEPT -p tcp -s +trusted_ips --dport 22 \
+> IN ACCEPT -p tcp -s +trusted_ips --dport 8006 \
 
-> Drops all other ports
->IN DROPS -p tcp -s +trusted_ips --dport 22
->IN DROPS -p tcp -s +trusted_ips --dport 8006
+> Drops all other ports \
+>IN DROPS -p tcp -s +trusted_ips --dport 22 \
+>IN DROPS -p tcp -s +trusted_ips --dport 8006 \
 
 ## GUI steps on day one
 - Turned off both enterprise repos
