@@ -17,7 +17,7 @@
    > bridge-stp off \
    > bridge-fd 0
 
-## IPSET rules
+> ## IPSET rules
   - $nano /etc/pve/nodes/wakanda/host.fw
 
 > [IPSET trusted_ips]
