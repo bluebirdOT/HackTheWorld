@@ -22,7 +22,7 @@
 
 > [IPSET trusted_ips]
 
-> [RULES]
+> [RULES] \
 > IN ACCEPT -p tcp -s +trusted_ips --dport 22 \
 > IN ACCEPT -p tcp -s +trusted_ips --dport 8006 
 
