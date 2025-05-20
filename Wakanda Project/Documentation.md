@@ -17,7 +17,7 @@
    > bridge-stp off \
    > bridge-fd 0
 
-> ## IPSET rules
+## IPSET rules
   - $ sudo nano /etc/pve/firewall/cluster.fw
 
 [OPTIONS]
