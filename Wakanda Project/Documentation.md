@@ -15,7 +15,20 @@
    > gateway 10.109.0.1 \
    > bridge-ports eno1 \
    > bridge-stp off \
-   > bridge-fd 0 
+   > bridge-fd 0
+
+## IPSET rules
+  - $nano /etc/pve/nodes/wakanda/host.fw
+
+> [IPSET trusted_ips]
+
+> [RULES]
+> IN ACCEPT -p tcp -s +trusted_ips --dport 22
+> IN ACCEPT -p tcp -s +trusted_ips --dport 8006
+
+#Drops all other ports
+>IN DROPS -p tcp -s +trusted_ips --dport 22
+>IN DROPS -p tcp -s +trusted_ips --dport 8006
 
 ## GUI steps on day one
 - Turned off both enterprise repos
@@ -27,8 +40,6 @@
 - Disabled root in CLI, access only from shxdow user
 - firewall active for certain IP addresses in vlan 118
 - creating IPset for all.
-
-
 
 ## User Documentation-Teacher
 ### Group: Teachers
