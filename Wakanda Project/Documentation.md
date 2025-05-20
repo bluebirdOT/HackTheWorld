@@ -23,6 +23,11 @@
 - Ran updates/upgrades
 - made teacher accounts, disabled root
 
+## Steps day two
+- Disabled root in CLI, access only from shxdow user
+- firewall active for certain IP addresses in vlan 118
+- creating IPset for all.
+
 
 
 ## User Documentation-Teacher
@@ -42,4 +47,5 @@ Permissions: (Group) Teachers
 - running on 10.109.0.11
 - User: admin
 - Pass: *ask me*
+- firewall rules only allow certain IPs GUI access
   
