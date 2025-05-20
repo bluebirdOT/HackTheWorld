@@ -18,17 +18,25 @@
    > bridge-fd 0
 
 > ## IPSET rules
-  - $nano /etc/pve/nodes/wakanda/host.fw
+  - $ sudo nano /etc/pve/firewall/cluster.fw
 
-> [IPSET trusted_ips]
+[OPTIONS]
 
-> [RULES] \
-> IN ACCEPT -p tcp -s +trusted_ips --dport 22 \
-> IN ACCEPT -p tcp -s +trusted_ips --dport 8006 
+enable: 1
 
-> Drops all other ports \
->IN DROPS -p tcp -s +trusted_ips --dport 22 \
->IN DROPS -p tcp -s +trusted_ips --dport 8006 
+[IPSET barn_door_protocol]
+
+10.109.0.86 \
+10.109.0.89 \
+10.118.0.115 \
+10.118.0.119 \
+
+[RULES]
+
+IN ACCEPT -source +barn_door_protocol -p tcp -dport 22 \
+IN ACCEPT -source +barn_door_protocol -p tcp -dport 8006 \
+IN DROP -p tcp -dport 22 \
+IN DROP -p tcp -dport 8006
 
 ## GUI steps on day one
 - Turned off both enterprise repos
@@ -36,10 +44,11 @@
 - Ran updates/upgrades
 - made teacher accounts, disabled root
 
-## Steps day two
+## Proxmox Steps day two
 - Disabled root in CLI, access only from shxdow user
 - firewall active for certain IP addresses in vlan 118
-- creating IPset for all.
+- creating IPset whitelist for teacher and my addresses
+- barn_door_protocol made
 
 ## User Documentation-Teacher
 ### Group: Teachers
@@ -58,5 +67,5 @@ Permissions: (Group) Teachers
 - running on 10.109.0.11
 - User: admin
 - Pass: *ask me*
-- firewall rules only allow certain IPs GUI access
+- whitelist of addresss with gui access made-same addresses as barn_door_protocol
   
