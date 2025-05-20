@@ -18,8 +18,8 @@
    > bridge-fd 0
 
 ## IPSET rules
-  - $ sudo nano /etc/pve/firewall/cluster.fw
-''''
+  - $ sudo nano /etc/pve/firewall/cluster.fw 
+'''
 [OPTIONS]
 
 enable: 1
@@ -37,7 +37,7 @@ IN ACCEPT -source +barn_door_protocol -p tcp -dport 22 \
 IN ACCEPT -source +barn_door_protocol -p tcp -dport 8006 \
 IN DROP -p tcp -dport 22 \
 IN DROP -p tcp -dport 8006
-''''
+'''
 ## GUI steps on day one
 - Turned off both enterprise repos
 - Added no-subscription repo
