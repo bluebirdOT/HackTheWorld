@@ -1,5 +1,3 @@
-# May 9th 2025
-
 ## Wakanda Specifications
 128 gbs of ram \
 2 CPUs 40 Cores in total \
