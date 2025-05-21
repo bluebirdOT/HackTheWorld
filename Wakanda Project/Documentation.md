@@ -65,15 +65,21 @@ Permissions: (Group) Teachers
 - WAN interface is tied to Vmbr0
   and connected to 109 Vlan
 - WAN interface is set to 10.109.0.11
+  
 #### LAN
 - LAN interface is tied to Vmbr1
   which is virtual network for vms
-- LAN interface is set to 192.168.128.1 as router 
-### http setup
-- running on 10.109.0.11
+- LAN interface is set to 192.168.128.1 as router
+  
+### https setup
+- running on 10.109.0.11:443
 - User: admin
 - Pass: *ask me*
 - whitelist of addresss with
   gui access same as barn_door_protocol
 - following default deny practice with firewall
   
+### DHCP Server
+- runnning on LAN at 192.168.128
+### Domain name
+- access to pfsense at bifrost.westfield.tech, giving access to The Mighty Wall
