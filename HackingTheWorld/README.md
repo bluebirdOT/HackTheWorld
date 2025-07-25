@@ -1,5 +1,5 @@
 # HackTheWorld
-This repository, created by William Torres, serves as a knowledge base for my pentesting journey. It contains notes, cheat sheets, and resources I’ve gathered through my exploration of cybersecurity challenges, including Hack the Box. As I continue learning and growing, I’ll update this space with valuable insights and tools—because I may ##hack the world##.
+This repository, created by William Torres, serves as a knowledge base for my pentesting journey. It contains notes, cheat sheets, and resources I’ve gathered through my exploration of cybersecurity challenges, including Hack the Box. As I continue learning and growing, I’ll update this space with valuable insights and tools—because I may hack the world.
 
 ### **CHEAT SHEET- https://devhints.io/curl**
 
