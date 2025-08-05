@@ -39,6 +39,10 @@ $ curl http://username:password@<SERVER_IP>:<PORT>/
 
 $ curl -X POST -u ‘username:admin&password:admin’ http://<SERVER_IP>:<PORT>/
 
+
+## Commands
+> sudo su -
+    - runs su as root by only using password.
 ## App/software/programs
 
 - **SSH**
