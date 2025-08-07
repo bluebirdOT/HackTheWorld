@@ -186,11 +186,6 @@ Log-Action "Enabling Windows Firewall..."
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Log-Action "Windows Firewall enabled."
 
-# Example Rule: Allow RDP from a specific IP
-$AllowedIP = "192.168.1.100"
-New-NetFirewallRule -DisplayName "Allow RDP" -Direction Inbound -Protocol TCP -LocalPort 3389 -Action Allow -RemoteAddress $AllowedIP
-Log-Action "Configured RDP rule for IP $AllowedIP."
-
 # 2. Enable BitLocker for Disk Encryption
 Log-Action "Enabling BitLocker on C:\ drive..."
 Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256 -UsedSpaceOnlyEncryption -TpmProtector
