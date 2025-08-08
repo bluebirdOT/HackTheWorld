@@ -1,263 +1,356 @@
-### Windows System Hardening Script ###
+<#
+.SYNOPSIS
+    CyberPatriot Windows Hardening Script - Prompt-Driven Safe Mode
+.DESCRIPTION
+    Hardens Windows systems by enforcing user/account policies, audit policies, firewall rules,
+    service & app hardening, password policies, and other best practices.
+    Always prompts before making changes.
+    Reads authorized users and admins from "Users.txt" in the script directory.
+#>
 
-# Helper function for logging
-$log = @()
+# ====== Initialization ======
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$UserListPath = Join-Path $ScriptDir "Users.txt"
+$LogPath = Join-Path $ScriptDir "secure_windows.log"
+$Summary = @()
+
+# Initialize log file
+if (Test-Path $LogPath) { Remove-Item $LogPath -Force }
+Write-Output "=== Script started at $(Get-Date) ===" | Out-File $LogPath
+
+# ====== Logging Function ======
 function Write-Log {
-    param (
-        [string]$Message,
-        [string]$Type = "INFO"  # INFO, WARN, ERROR
-    )
-    $log += "[$Type] $Message"
-    Write-Host "[$Type] $Message"
+    param([string]$Message, [string]$Level = "INFO")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $entry = "$timestamp [$Level] $Message"
+    $global:Summary += @{ Time = $timestamp; Level = $Level; Message = $Message }
+    Write-Output $entry | Tee-Object -FilePath $LogPath -Append
 }
 
-# Function to write logs to a file
-function Write-LogFile {
-    $log | Out-File -FilePath "C:\HardeningScript.log" -Encoding UTF8
+# ====== Prompt Function ======
+function Confirm-Action {
+    param([string]$Message)
+    Write-Host "$Message (Y/N)" -ForegroundColor Yellow
+    $choice = Read-Host
+    return ($choice -match '^(y|yes)$')
 }
 
-# Function to check for unauthorized users
-function Remove-ExtraUsers {
-    param (
-        [string]$AuthorizedUsersFile
-    )
-    Write-Log "Checking for unauthorized users..."
+# ====== Audit Policy Enforcement ======
+function Enable-AllAudits {
+    Write-Log "Preparing to enable all Success/Failure audit policies" "ACTION"
+    if (Confirm-Action "Apply audit policy changes (all success/failure events)?") {
+        try {
+            auditpol /set /category:* /success:enable /failure:enable | Out-Null
+            Write-Log "All audit categories set to Success and Failure" "INFO"
+        } catch {
+            Write-Log "Failed to configure audit policies - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped applying audit policy changes" "INFO"
+    }
+}
 
-    # Get list of local users
-    $localUsers = Get-LocalUser | Where-Object { $_.Enabled -eq $true } | Select-Object -ExpandProperty Name
+# ====== User Management ======
+function Manage-Users {
+    if (-not (Test-Path $UserListPath)) {
+        Write-Log "User list file not found: $UserListPath" "ERROR"
+        return
+    }
 
-    # Get authorized users from file
-    $authorizedUsers = Get-Content -Path $AuthorizedUsersFile
+    $authorizedUsers = @{}
+    Get-Content $UserListPath | ForEach-Object {
+        if ($_ -match '^\s*#') { return }
+        if ($_ -match '^\s*(?<name>[^\s;]+)\s*;?\s*(?<role>admin)?\s*$') {
+            $authorizedUsers[$Matches['name']] = ($Matches['role'] -eq 'admin')
+        }
+    }
 
-    # Compare and remove unauthorized users
+    $localUsers = Get-LocalUser | ForEach-Object { $_.Name }
+
+    # Add missing authorized users
+    foreach ($user in $authorizedUsers.Keys) {
+        if ($localUsers -notcontains $user) {
+            if (Confirm-Action "User '$user' not found. Add?") {
+                try {
+                    $password = Read-Host "Enter temporary password for $user" -AsSecureString
+                    New-LocalUser -Name $user -Password $password -UserMayNotChangePassword $false -PasswordNeverExpires $false
+                    Write-Log "Added missing user: $user" "ACTION"
+                } catch {
+                    Write-Log "Failed to add user $user - $_" "ERROR"
+                }
+            } else {
+                Write-Log "Skipped adding user: $user" "INFO"
+            }
+        }
+    }
+
+    # Remove unauthorized users
     foreach ($user in $localUsers) {
-        if ($authorizedUsers -notcontains $user) {
-            Write-Log "Unauthorized user found: $user" "WARN"
-            $response = Read-Host "Remove user $user? (Y/n)"
-            if ($response -ne "n") {
+        if (-not $authorizedUsers.ContainsKey($user)) {
+            if (Confirm-Action "User '$user' is not authorized. Remove?") {
                 try {
                     Remove-LocalUser -Name $user
-                    Write-Log "Removed user: $user" "INFO"
+                    Write-Log "Removed unauthorized user: $user" "ACTION"
                 } catch {
-                    Write-Log "Failed to remove user: $user. $_" "ERROR"
+                    Write-Log "Failed to remove user $user - $_" "ERROR"
                 }
+            } else {
+                Write-Log "Skipped removing unauthorized user: $user" "INFO"
             }
         }
     }
-    Write-Log "Completed user checks."
+
+    # Manage admin rights
+    $admins = Get-LocalGroupMember -Group "Administrators" | ForEach-Object { $_.Name.Split('\')[-1] }
+    foreach ($user in $authorizedUsers.Keys) {
+        $shouldBeAdmin = $authorizedUsers[$user]
+        $isAdmin = $admins -contains $user
+
+        if ($shouldBeAdmin -and -not $isAdmin) {
+            if (Confirm-Action "User '$user' should be admin. Add to Administrators?") {
+                try {
+                    Add-LocalGroupMember -Group "Administrators" -Member $user
+                    Write-Log "Granted admin rights to $user" "ACTION"
+                } catch {
+                    Write-Log "Failed to add admin rights to $user - $_" "ERROR"
+                }
+            } else {
+                Write-Log "Skipped granting admin rights to $user" "INFO"
+            }
+        } elseif (-not $shouldBeAdmin -and $isAdmin) {
+            if (Confirm-Action "User '$user' should NOT be admin. Remove from Administrators?") {
+                try {
+                    Remove-LocalGroupMember -Group "Administrators" -Member $user
+                    Write-Log "Removed admin rights from $user" "ACTION"
+                } catch {
+                    Write-Log "Failed to remove admin rights from $user - $_" "ERROR"
+                }
+            } else {
+                Write-Log "Skipped removing admin rights from $user" "INFO"
+            }
+        }
+    }
 }
 
-# Function to remove unauthorized admin users
-function Remove-UnauthorizedAdmins {
-    param (
-        [string]$AuthorizedAdminsFile
+# ====== Service Hardening ======
+function Harden-Services {
+    $BadServices = @(
+        "Telnet","FTPSVC","RemoteRegistry","SNMP","SSDPDiscovery",
+        "BluetoothSupportService","LanmanServer"
     )
-    Write-Log "Checking for unauthorized admin users..."
 
-    # Get list of administrators
-    $adminGroup = Get-LocalGroupMember -Group "Administrators" | Select-Object -ExpandProperty Name
-
-    # Get authorized admins from file
-    $authorizedAdmins = Get-Content -Path $AuthorizedAdminsFile
-
-    # Compare and remove unauthorized admins
-    foreach ($admin in $adminGroup) {
-        if ($authorizedAdmins -notcontains $admin) {
-            Write-Log "Unauthorized admin found: $admin" "WARN"
-            $response = Read-Host "Remove admin $admin? (Y/n)"
-            if ($response -ne "n") {
+    foreach ($service in $BadServices) {
+        $svc = Get-Service -Name $service -ErrorAction SilentlyContinue
+        if ($svc) {
+            Write-Log "Service detected: $service (Status: $($svc.Status))" "WARN"
+            if (Confirm-Action "Disable and stop service $service?") {
                 try {
-                    Remove-LocalGroupMember -Group "Administrators" -Member $admin
-                    Write-Log "Removed admin: $admin" "INFO"
+                    Stop-Service -Name $service -Force
+                    Set-Service -Name $service -StartupType Disabled
+                    Write-Log "Disabled service: $service" "ACTION"
                 } catch {
-                    Write-Log "Failed to remove admin: $admin. $_" "ERROR"
+                    Write-Log "Failed to disable service $service - $_" "ERROR"
                 }
+            } else {
+                Write-Log "Skipped disabling service: $service" "INFO"
             }
         }
     }
-    Write-Log "Completed admin checks."
 }
 
-# Function to uninstall unwanted applications
+# ====== Bad Tools Detection & Removal ======
 function Remove-BadTools {
-    $badTools = @("nmap", "wireshark", "telnet", "ftp", "curl", "wget", "php", "python", "ruby", "perl")
-    Write-Log "Checking for and removing unwanted applications..."
+    $BadToolNames = @(
+        "nmap","wireshark","telnet","ftp","curl","wget",
+        "php","python","ruby","perl","john","metasploit"
+    )
 
-    foreach ($tool in $badTools) {
-        $installedApp = Get-AppxPackage | Where-Object { $_.Name -match $tool }
-        if ($installedApp) {
-            Write-Log "Found unwanted application: $tool" "WARN"
-            $response = Read-Host "Remove application $tool? (Y/n)"
-            if ($response -ne "n") {
+    foreach ($tool in $BadToolNames) {
+        $apps = Get-AppxPackage | Where-Object { $_.Name -match $tool }
+        if ($apps) {
+            Write-Log "Suspicious app detected: $tool" "WARN"
+            if (Confirm-Action "Remove Appx application $tool?") {
                 try {
-                    Get-AppxPackage $tool | Remove-AppxPackage
-                    Write-Log "Removed application: $tool" "INFO"
+                    $apps | Remove-AppxPackage
+                    Write-Log "Removed application: $tool" "ACTION"
                 } catch {
-                    Write-Log "Failed to remove application: $tool. $_" "ERROR"
+                    Write-Log "Failed to remove application $tool - $_" "ERROR"
+                }
+            } else {
+                Write-Log "Skipped removing app: $tool" "INFO"
+            }
+        }
+    }
+
+    $classicApps = Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* ,
+                                   HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+                    -ErrorAction SilentlyContinue | Select-Object DisplayName
+
+    foreach ($tool in $BadToolNames) {
+        foreach ($app in $classicApps) {
+            if ($app.DisplayName -and $app.DisplayName -match $tool) {
+                Write-Log "Suspicious classic app detected: $($app.DisplayName)" "WARN"
+                if (Confirm-Action "Please uninstall '$($app.DisplayName)' manually via Control Panel. Confirm when done?") {
+                    Write-Log "User confirmed manual uninstall of $($app.DisplayName)" "ACTION"
+                } else {
+                    Write-Log "User skipped manual uninstall of $($app.DisplayName)" "INFO"
                 }
             }
         }
     }
-    Write-Log "Completed application removal."
 }
 
-# Function to disable unwanted services
-function Disable-Services {
-    $badServices = @("Telnet", "FTP", "RemoteRegistry", "SMB", "SNMP", "SSDP", "Bluetooth")
-    Write-Log "Disabling unwanted services..."
-
-    foreach ($service in $badServices) {
+# ====== Password & Account Lockout Policy ======
+function Configure-PasswordPolicy {
+    Write-Log "Preparing to configure password complexity and account lockout policies" "ACTION"
+    if (Confirm-Action "Apply password complexity and lockout policies?") {
         try {
-            $serviceStatus = Get-Service -Name $service -ErrorAction SilentlyContinue
-            if ($serviceStatus -and $serviceStatus.Status -ne "Stopped") {
-                Write-Log "Disabling service: $service" "WARN"
-                Stop-Service -Name $service -Force
-                Set-Service -Name $service -StartupType Disabled
-                Write-Log "Disabled service: $service" "INFO"
-            }
+            secedit /export /cfg "$env:TEMP\secpol.cfg" | Out-Null
+
+            (Get-Content "$env:TEMP\secpol.cfg") |
+                ForEach-Object {
+                    $_ -replace "PasswordComplexity = 0", "PasswordComplexity = 1" `
+                       -replace "MinimumPasswordLength = \d+", "MinimumPasswordLength = 12" `
+                       -replace "LockoutBadCount = \d+", "LockoutBadCount = 5" `
+                       -replace "ResetLockoutCount = \d+", "ResetLockoutCount = 30" `
+                       -replace "LockoutDuration = \d+", "LockoutDuration = 30"
+                } | Set-Content "$env:TEMP\secpol.cfg"
+
+            secedit /configure /db secedit.sdb /cfg "$env:TEMP\secpol.cfg" /areas SECURITYPOLICY | Out-Null
+            Remove-Item "$env:TEMP\secpol.cfg" -Force
+            Write-Log "Password complexity and lockout policies applied" "INFO"
         } catch {
-            Write-Log "Failed to disable service: $service. $_" "ERROR"
+            Write-Log "Failed to configure password policy - $_" "ERROR"
         }
+    } else {
+        Write-Log "Skipped applying password and lockout policy" "INFO"
     }
-    Write-Log "Completed disabling services."
 }
 
-# Function to check open ports
-function Check-OpenPorts {
-    $badPorts = @(22, 23, 25, 80, 443, 3306, 3389)
-    Write-Log "Checking for open ports..."
+# ====== Firewall Hardening ======
+function Harden-Firewall {
+    Write-Log "Preparing to configure Windows Firewall" "ACTION"
 
-    foreach ($port in $badPorts) {
-        $portCheck = Test-NetConnection -Port $port -InformationLevel Quiet
-        if ($portCheck) {
-            Write-Log "Open port detected: $port" "WARN"
+    if (Confirm-Action "Enable Windows Firewall for all profiles?") {
+        try {
+            Set-NetFirewallProfile -Profile Domain,Private,Public -Enabled True
+            Write-Log "Firewall enabled for Domain, Private, and Public profiles" "INFO"
+        } catch {
+            Write-Log "Failed to enable firewall - $_" "ERROR"
         }
+    } else {
+        Write-Log "Skipped enabling firewall" "INFO"
     }
-    Write-Log "Completed port checks."
+
+    if (Confirm-Action "Block all inbound connections by default?") {
+        try {
+            Set-NetFirewallProfile -Profile Domain,Private,Public -DefaultInboundAction Block
+            Write-Log "Default inbound action set to Block for all profiles" "INFO"
+        } catch {
+            Write-Log "Failed to set inbound blocking - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped setting inbound block" "INFO"
+    }
+
+    if (Confirm-Action "Log dropped packets and successful connections?") {
+        try {
+            Set-NetFirewallProfile -LogAllowed True -LogBlocked True -LogFileName '%systemroot%\system32\LogFiles\Firewall\pfirewall.log'
+            Write-Log "Firewall logging enabled" "INFO"
+        } catch {
+            Write-Log "Failed to enable firewall logging - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped enabling firewall logging" "INFO"
+    }
 }
 
-# Function to enforce password complexity
-function Set-PasswordComplexity {
-    Write-Log "Enforcing password complexity policies..."
+# ====== Best Practices ======
+function Apply-BestPractices {
+    Write-Log "Preparing to apply Windows security best practices" "ACTION"
+
+    if (Confirm-Action "Disable Guest account?") {
+        try {
+            Disable-LocalUser -Name "Guest"
+            Write-Log "Guest account disabled" "INFO"
+        } catch {
+            Write-Log "Failed to disable Guest account - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped disabling Guest account" "INFO"
+    }
+
+    if (Confirm-Action "Disable built-in Administrator account (RID 500)?") {
+        try {
+            Disable-LocalUser -Name "Administrator"
+            Write-Log "Built-in Administrator account disabled" "INFO"
+        } catch {
+            Write-Log "Failed to disable built-in Administrator - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped disabling built-in Administrator" "INFO"
+    }
+
+    if (Confirm-Action "Disable PowerShell remoting?") {
+        try {
+            Disable-PSRemoting -Force
+            Write-Log "PowerShell remoting disabled" "INFO"
+        } catch {
+            Write-Log "Failed to disable PS remoting - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped disabling PowerShell remoting" "INFO"
+    }
+
+    if (Confirm-Action "Disable AutoPlay/AutoRun?") {
+        try {
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -Value 255
+            Write-Log "AutoPlay/AutoRun disabled" "INFO"
+        } catch {
+            Write-Log "Failed to disable AutoPlay/AutoRun - $_" "ERROR"
+        }
+    } else {
+        Write-Log "Skipped disabling AutoPlay/AutoRun" "INFO"
+    }
 
     try {
-        secedit /export /cfg C:\secpol.cfg
-        (Get-Content C:\secpol.cfg).replace("PasswordComplexity = 0", "PasswordComplexity = 1") |
-            Set-Content C:\secpol.cfg
-        secedit /configure /db secedit.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY
-        Remove-Item C:\secpol.cfg
-        Write-Log "Password complexity enforced." "INFO"
+        $secureBoot = Confirm-SecureBootUEFI -ErrorAction SilentlyContinue
+        Write-Log "Secure Boot status: $secureBoot" "INFO"
     } catch {
-        Write-Log "Failed to enforce password complexity. $_" "ERROR"
+        Write-Log "Secure Boot check not supported on this system" "WARN"
     }
 }
 
-# Main Script Execution
-$authorizedUsersFile = "C:\AuthorizedUsers.txt"
-$authorizedAdminsFile = "C:\AuthorizedAdmins.txt"
+# ====== Summary Report ======
+function Print-Summary {
+    $actions = $Summary | Where-Object { $_.Level -eq "ACTION" }
+    $skips = $Summary | Where-Object { $_.Level -eq "INFO" -and $_.Message -match 'Skipped' }
+    $errors = $Summary | Where-Object { $_.Level -eq "ERROR" }
 
-Remove-ExtraUsers -AuthorizedUsersFile $authorizedUsersFile
-Remove-UnauthorizedAdmins -AuthorizedAdminsFile $authorizedAdminsFile
-Remove-BadTools
-Disable-Services
-Check-OpenPorts
-Set-PasswordComplexity
-Write-LogFile
+    Write-Host "`n=== Summary Report ===" -ForegroundColor Cyan
+    Write-Host "Actions taken: $($actions.Count)"
+    Write-Host "Actions skipped: $($skips.Count)"
+    Write-Host "Errors: $($errors.Count)`n"
 
+    if ($actions.Count -gt 0) {
+        Write-Host "Actions:" -ForegroundColor Green
+        $actions | ForEach-Object { Write-Host "$($_.Time) - $($_.Message)" }
+    }
 
-# Windows Security Hardening Script
-# This script implements multiple security best practices for Windows systems.
-# Run with administrative privileges.
-
-# Log File Initialization
-$LogFile = "C:\security_hardening.log"
-Start-Transcript -Path $LogFile -Append
-
-Write-Output "Starting Windows Security Hardening Script..."
-
-# Function to log actions
-Function Log-Action {
-    param ([string]$Message)
-    Write-Output $Message | Out-File -FilePath $LogFile -Append
+    if ($errors.Count -gt 0) {
+        Write-Host "`nErrors:" -ForegroundColor Red
+        $errors | ForEach-Object { Write-Host "$($_.Time) - $($_.Message)" }
+    }
 }
 
-# 1. Enable Windows Firewall and Configure Rules
-Log-Action "Enabling Windows Firewall..."
-Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
-Log-Action "Windows Firewall enabled."
-
-# 2. Enable BitLocker for Disk Encryption
-Log-Action "Enabling BitLocker on C:\ drive..."
-Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256 -UsedSpaceOnlyEncryption -TpmProtector
-Log-Action "BitLocker enabled."
-
-# 3. Regularly Apply Windows Updates
-Log-Action "Installing Windows Updates..."
-Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
-Import-Module PSWindowsUpdate
-Install-WindowsUpdate -AcceptAll -AutoReboot
-Log-Action "Windows Updates installed."
-
-# 4. Restrict Remote Desktop Protocol (RDP) Access
-Log-Action "Disabling RDP..."
-Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 1
-Log-Action "RDP disabled."
-
-# 5. Audit and Monitor Event Logs
-Log-Action "Enabling audit policies..."
-AuditPol.exe /set /category:* /success:enable /failure:enable
-Log-Action "Audit policies enabled."
-
-# 6. Disable Unused Network Protocols
-Log-Action "Disabling SMBv1..."
-Set-SmbServerConfiguration -EnableSMB1Protocol $false
-Log-Action "SMBv1 disabled."
-
-# 7. Implement Local Security Policies
-Log-Action "Configuring local security policies..."
-secedit /configure /cfg "C:\Windows\Security\Templates\SecTemplate.inf" /db SecDB.sdb
-Log-Action "Local security policies configured."
-
-# 8. Remove Legacy Applications and Features
-Log-Action "Removing Internet Explorer..."
-Disable-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 -Online
-Log-Action "Internet Explorer removed."
-
-# 9. Enable Controlled Folder Access
-Log-Action "Enabling Controlled Folder Access..."
-Set-MpPreference -EnableControlledFolderAccess Enabled
-Log-Action "Controlled Folder Access enabled."
-
-# 10. Harden PowerShell
-Log-Action "Configuring PowerShell execution policies..."
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1
-Log-Action "PowerShell hardened."
-
-# 11. Use AppLocker or Windows Defender Application Control (WDAC)
-Log-Action "Configuring AppLocker policies..."
-Set-AppLockerPolicy -PolicyType Enforced -XMLPolicy "C:\Path\To\AppLockerPolicy.xml"
-Log-Action "AppLocker policies configured."
-
-# 12. Secure Administrator Accounts
-Log-Action "Renaming default Administrator account..."
-Rename-LocalUser -Name "Administrator" -NewName "SecureAdmin"
-Log-Action "Administrator account renamed."
-
-# 13. Enable Enhanced Security in Windows Defender
-Log-Action "Enabling enhanced security features in Windows Defender..."
-Set-MpPreference -EnableNetworkProtection Enabled
-Log-Action "Windows Defender enhanced security features enabled."
-
-# 14. Disable USB Ports (if not required)
-Log-Action "Disabling USB ports..."
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\USBSTOR" -Name "Start" -Value 4
-Log-Action "USB ports disabled."
-
-# 15. Backup Critical Data
-Log-Action "Creating a backup..."
-wbadmin start backup -backupTarget:D: -include:C: -allCritical -quiet
-Log-Action "Backup created."
-
-Write-Output "Security Hardening Script Completed."
-Stop-Transcript
+# ====== Run All Steps ======
+Write-Log "=== Starting Windows Hardening Script ==="
+Enable-AllAudits
+Manage-Users
+Harden-Services
+Remove-BadTools
+Configure-PasswordPolicy
+Harden-Firewall
+Apply-BestPractices
+Write-Log "=== Finished Windows Hardening Script ==="
+Print-Summary
