@@ -37,3 +37,13 @@ making a proxmox sandbox I can remote into and use anywhere I am using tailscale
 | 12TB  RAID 6  | `/` (root)               | —                   | OS + VM storage     |
 | 600GB RAID 1  | `/mnt/The_Vault`         | `The_Vault`         | ISO images          |
 | 4TB   RAID 0  | `/mnt/Contingency_Plans` | `Contingency_Plans` | VM backups          |
+
+##Setting up Tailscale
+- installing tailscale using curl
+  ```bash
+  curl -FsSL https://tailscale.com/install.sh | sh
+- enable tailscale
+  ```bash
+  tailscale up
+#### *NOTE*
+when enabling tailscale, it provides one-time url to log into your tailscale account to add your device to the tailscale vpn-mesh network
