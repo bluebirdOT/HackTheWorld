@@ -15,22 +15,6 @@ making a proxmox sandbox I can remote into and use anywhere I am using tailscale
 - 12Tb RAID 6 drive - main server drive
 - 600Gb RAID 1 drive - ISO storage drive
 - 4Tb RAID 0 drive - VM backup drive
-## Setup steps for Drives
-- Checked for preconfigured RAID drives made in Dell RAID configuration settings
-  ```bash
-  lsblk
-- Formatted each array with *ext4* filesystem
-  ```bash
-  mkfs.ext4 /dev/sdX
-- Created mount points for the **non-root** arrays
-  ```bash
-  mkdir -p /mnt/'Directory_Name'
-- Mounted the drives with directories
-  ```bash
-  mount /dev/sdX /mnt/'Directory_Name'
-- Made mounts persistant by editing `/etc/fstab`
-  ```bash
-  echo '/dev/sdX /mnt/'Directory_Name' ext4 defaults 0 2' >> /etc/fstab
 ###  Final drive layout
 | Drive         | Mount Point              | Storage ID          |  Content Type       |
 |---------------|--------------------------|---------------------|---------------------|
