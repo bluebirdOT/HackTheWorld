@@ -9,7 +9,7 @@ making a proxmox sandbox I can remote into and use anywhere I am using tailscale
 - Proxmox server (The Nexus) for workstation and sandbox environment
   - windows11 VM (Oracle) for my main workstation
 - Tailscale
-  - used for connection to Oracle & Nexus from ipad
+  - used for connection to Oracle & Nexus
 
 ### Nexus drive Partitions & RAID
 - 12Tb RAID 6 drive - main server drive
